@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Calendar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .calendar-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .calendar-header select {
+            padding: 5px;
+        }
+        .calendar {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .calendar th, .calendar td {
+            border: 1px solid #000;
+            padding: 10px;
+            text-align: center;
+        }
+        .calendar th {
+            background-color: #f2f2f2;
+        }
+        .today {
+            background-color: #ffeb3b; /* Highlight today's date */
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button onclick="prevMonth()">&#8249;</button>
+            <select id="month" onchange="renderCalendar()"></select>
+            <select id="year" onchange="renderCalendar()"></select>
+            <button onclick="nextMonth()">&#8250;</button>
+        </div>
+        <table class="calendar">
+            <thead>
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody id="calendar-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        const monthSelect = document.getElementById('month');
+        const yearSelect = document.getElementById('year');
+        const calendarBody = document.getElementById('calendar-body');
+
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June', 
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        function populateMonthSelect() {
+            months.forEach((month, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = month;
+                monthSelect.appendChild(option);
+            });
+        }
+
+        function populateYearSelect() {
+            const currentYear = new Date().getFullYear();
+            for (let i = currentYear - 100; i <= currentYear + 100; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        function renderCalendar() {
+            const month = parseInt(monthSelect.value);
+            const year = parseInt(yearSelect.value);
+
+            const firstDay = new Date(year, month).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            calendarBody.innerHTML = '';
+            let date = 1;
+
+            const today = new Date();
+            const isCurrentMonth = month === today.getMonth() && year === today.getFullYear();
+            const todayDate = today.getDate();
+
+            for (let i = 0; i < 6; i++) {
+                const row = document.createElement('tr');
+
+                for (let j = 0; j < 7; j++) {
+                    const cell = document.createElement('td');
+
+                    if (i === 0 && j < firstDay) {
+                        row.appendChild(cell);
+                    } else if (date > lastDate) {
+                        break;
+                    } else {
+                        cell.textContent = date;
+
+                        if (isCurrentMonth && date === todayDate) {
+                            cell.classList.add('today');
+                        }
+
+                        row.appendChild(cell);
+                        date++;
+                    }
+                }
+
+                calendarBody.appendChild(row);
+            }
+        }
+
+        function prevMonth() {
+            let month = parseInt(monthSelect.value);
+            let year = parseInt(yearSelect.value);
+
+            if (month === 0) {
+                month = 11;
+                year--;
+            } else {
+                month--;
+            }
+
+            monthSelect.value = month;
+            yearSelect.value = year;
+            renderCalendar();
+        }
+
+        function nextMonth() {
+            let month = parseInt(monthSelect.value);
+            let year = parseInt(yearSelect.value);
+
+            if (month === 11) {
+                month = 0;
+                year++;
+            } else {
+                month++;
+            }
+
+            monthSelect.value = month;
+            yearSelect.value = year;
+            renderCalendar();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMonthSelect();
+            populateYearSelect();
+
+            const today = new Date();
+            monthSelect.value = today.getMonth();
+            yearSelect.value = today.getFullYear();
+
+            renderCalendar();
+        });
+    </script>
+</body>
+</html>
